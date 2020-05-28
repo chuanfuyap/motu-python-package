@@ -1,2 +1,2 @@
-# motu-python-package
-tools to handle metagenomic data manipulation
+# motu-python-package (motupy)
+Various tools written in python to handle metagenomic data manipulation.
