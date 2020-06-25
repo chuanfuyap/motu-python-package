@@ -261,3 +261,25 @@ def generate_aitchison_pcoa(df):
     pcoa = ordination.pcoa(dm)
     
     return pcoa.samples, dist_matrix
+
+def get_kingdom_sets(dataframe):
+
+    df = dataframe.copy()
+    kingdomsets = {'virus': set(),
+            'bacteria': set(),
+            'eukaryote': set(),
+            'archaea': set()
+            }
+    for taxid in df.columns:
+        taxid = int(taxid)
+        if 2 in ncbi.get_lineage(taxid):
+            kingdomsets['bacteria'].add(taxid)
+        elif 10239 in ncbi.get_lineage(taxid):
+            kingdomsets['virus'].add(taxid)
+        elif 2759 in ncbi.get_lineage(taxid):
+            kingdomsets['eukaryote'].add(taxid)
+        else:
+            kingdomsets['archaea'].add(taxid)
+        
+    return kingdomsets
+

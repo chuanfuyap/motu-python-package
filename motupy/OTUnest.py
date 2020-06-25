@@ -95,5 +95,3 @@ class OTUnest:
 
         """ 
         return pd.DataFrame(self.nest).transpose()
-
-    #def filter(self, )

@@ -14,3 +14,10 @@ from .describe import describe
 from .mp_methods import *
 
 from .kaiju_output import *
+
+
+## GeneData, the class object for reading in and processing OTU data
+from .GeneData import GeneData
+from .GeneNest import GeneNest
+
+from .humann2_output import *
