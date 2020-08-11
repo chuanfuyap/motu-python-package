@@ -2,8 +2,7 @@
     GeneData object is for storing and processing single sample of gene data, be it metabolic potential (DNA) or metabolic activity (RNA)
     The data will be stored as a dictionary {key: Gene ID, value: read counts/relative abundance}
 """
-from .humann2_output import *
-from .describe import describe
+from humann2_output import *
 
 class GeneData:
     def __init__(self, file_loc, input_type, verbose=0, extension=None):

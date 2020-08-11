@@ -2,10 +2,9 @@
     OTUdata object is for storing and processing single sample of OTU data.
     The data will be stored as a dictionary {key: OTU taxa id number, value: read counts/relative abundance}
 """
-from .kaiju_output import *
-from .describe import describe
+from kaiju_output import *
 from ete3 import NCBITaxa
-from .replacement_taxa import get_dict
+from replacement_taxa import get_dict
 class OTUdata:
     def __init__(self, file_loc, input_type, artifact_threshold=0, verbose=0, extension=None, include_strains=False):
         """
@@ -234,13 +233,6 @@ class OTUdata:
 
             if self.verbose >= 1 : print('[NO RANK DELETION] TAX ID %s \tNAME %s deleted as it is not part of the desired ranks %s'%(dictionary_key, self.ncbi.get_taxid_translator([dictionary_key])[dictionary_key],taxid_rank.upper()))
 
-    def describe(self):
-        """
-        prints out the number of reads in total for the 3 superkingdoms:
-        Viruses, Bacteria, and Eukaryota
-        """
-        describe(self.otufile, self.cumulated, self.ncbi)
-    
     def update_superkingdom(self):
         """
         Process done right after reading otu data into a dictionary.
