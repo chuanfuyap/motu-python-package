@@ -2,9 +2,9 @@
     OTUdata object is for storing and processing single sample of OTU data.
     The data will be stored as a dictionary {key: OTU taxa id number, value: read counts/relative abundance}
 """
-from kaiju_output import *
+from .kaiju_output import *
 from ete3 import NCBITaxa
-from replacement_taxa import get_dict
+from .replacement_taxa import get_dict
 class OTUdata:
     def __init__(self, file_loc, input_type, artifact_threshold=0, verbose=0, extension=None, include_strains=False):
         """

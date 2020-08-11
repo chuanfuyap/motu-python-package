@@ -3,7 +3,7 @@
     The data will be stored as a dictionary {key: sample_ID, value: OTUData object}
 """
 import pandas as pd 
-from OTUdata import OTUdata
+from .OTUdata import OTUdata
 import os 
 class OTUnest:
     def __init__(self, verbose = 0):
