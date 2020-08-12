@@ -7,5 +7,5 @@ setup(name="motupy",
         author='Chuan Fu Yap',
         author_email='yapchuanfu@gmail.com',
         license='MIT',
-        packages=find_namespace_packages(include=['motupy.dataprocessing', "motupy.utils"]),
-        install_requires=['pandas', 'ete3', 'numpy'])
+        packages=find_namespace_packages(include=['motupy.dataprocessing', "motupy.utils", "motupy.timeseries"]),
+        install_requires=['pandas', 'ete3', 'numpy', 'scipy', 'scikit-bio'])
