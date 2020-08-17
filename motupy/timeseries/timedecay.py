@@ -69,6 +69,8 @@ class timedecay:
     def fit_compare_intercept(self, dataframe, metadataframe, group="Group", labels=[1,0]):
         """
         Fits data to for time decay analysis and compare intercept of two groups
+
+        NOTE: function requires more testing to confirm that it is implemented correctly
         
         Parameters
         ------------
