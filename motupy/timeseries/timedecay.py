@@ -11,12 +11,20 @@
 
     NOTE: only dissimilarity measure implemented in this motupy package aitchison distance, hence the euclidean distance.
 """
-from itertools import combinations
-from scipy.spatial.distance import euclidean
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
+
+import matplotlib.pyplot as plt 
+import seaborn as sns; sns.set()
+
 from skbio.stats import composition
+
+from scipy.spatial.distance import pdist, euclidean
+from itertools import combinations
+
+import statsmodels.api as sm
+
+from scipy import stats
 
 class timedecay:
     def __init__(self, parameters=None):
@@ -35,7 +43,7 @@ class timedecay:
         """
         self.parameters = parameters
         
-    def fit(self, dataframe, metadataframe):
+    def fit(self, dataframe, metadataframe, verbose=True):
         """
         Performs timedecay analysis by fitting log-linear model
         
@@ -62,12 +70,14 @@ class timedecay:
 
         model = sm.OLS(y, X)
         results = model.fit()
-        print(results.summary())
+        if verbose:
+            print(results.summary())
 
         return results
 
     def fit_compare_intercept(self, dataframe, metadataframe, group="Group", labels=[1,0]):
         """
+        DEPRECATED
         Fits data to for time decay analysis and compare intercept of two groups
 
         NOTE: function requires more testing to confirm that it is implemented correctly
@@ -116,6 +126,7 @@ class timedecay:
 
     def fit_compare_slope(self, dataframe, metadataframe, group="Group", labels=[1,0]):
         """
+        DEPRECATED
         Fits data to for time decay analysis and compare intercept of two groups
         
         Parameters
@@ -195,6 +206,7 @@ class timedecay:
             submeta = metadata.loc[ix, "Time"]
             
             XY = self.scoreXY(subdf, submeta)
+            XY["subject"] = [i]*XY.shape[0]
             
             xylist.append(XY)
         
@@ -265,3 +277,73 @@ class timedecay:
             xy = xy.append({"timediff":time, "distance":dist}, ignore_index=True)
 
         return xy
+
+    def group_comparison_Ttest(self, dataset, metadata, group):
+        """
+        Performs T test to compute the statistical significance on the difference of time decay between two groups.
+        This is done by looping through each subject within a group and computing their decay rate, and finally comparing decay rate of the two groups. 
+        
+        Parameters
+        ------------
+        dataset: pandas dataframe,
+            the compositional data where,
+                row = samples
+                columns = OTUs
+
+        metadata: pandas dataframe,
+            the metadata of the file, where the row index must be shared with the dataset. 
+            the columns will 
+        
+        group: str,
+            the group within the metadata columns which will be compared 
+
+        Returns
+        ------------
+        t: float, 
+            t-score
+        p: float,
+            p-value
+        decayrateA, decayrateB: list of float,
+            the computed decay rate mean for group A and B
+        interceptA, interceptB: list of float, 
+            the computed intercept mean for group A and B
+
+        """
+        A, B = metadata[group].unique()
+        groupAix = metadata[metadata[group]==A].index
+        groupBix = metadata[metadata[group]==B].index
+        
+        abtA = self.build_abt(dataset.loc[groupAix], metadata.loc[groupAix])
+        abtB = self.build_abt(dataset.loc[groupBix], metadata.loc[groupBix])
+        
+        decayrateA = []
+        interceptA = []
+        
+        for sub in abtA.subject.unique():
+            subABT = abtA[abtA.subject==sub]
+            
+            X = sm.add_constant(subABT.timediff)
+            y = subABT.distance
+            
+            results = sm.OLS(y, X).fit()
+            decayrate = results.params['timediff']
+            decayrateA.append(decayrate)
+            interceptA.append(results.params['const'])
+            
+        decayrateB = []
+        interceptB = []
+        
+        for sub in abtB.subject.unique():
+            subABT = abtB[abtB.subject==sub]
+            
+            X = sm.add_constant(subABT.timediff)
+            y = subABT.distance
+            
+            results = sm.OLS(y, X).fit()
+            decayrate = results.params['timediff']
+            decayrateB.append(decayrate)
+            interceptB.append(results.params['const'])
+            
+        t,p = stats.ttest_ind(decayrateA,decayrateB)
+        
+        return t, p, decayrateA, decayrateB, interceptA, interceptB
