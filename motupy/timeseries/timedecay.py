@@ -43,7 +43,7 @@ class timedecay:
         """
         self.parameters = parameters
         
-    def fit(self, dataframe, metadataframe, verbose=True):
+    def fit(self, dataframe, metadataframe, verbose=True, inverse=False):
         """
         Performs timedecay analysis by fitting log-linear model
         
@@ -62,7 +62,7 @@ class timedecay:
             the fitted linear regression model
         """
 
-        abt = self.build_abt(dataframe, metadataframe)
+        abt = self.build_abt(dataframe, metadataframe,inverse)
 
         ## this adds an intercept to the linear model
         X = sm.add_constant(abt.timediff)
@@ -172,7 +172,58 @@ class timedecay:
 
         return results
 
-    def build_abt(self, dataframe, metadataframe):
+    def build_abt(self, dataframe, metadataframe, inverse=False):
+        """
+        Builds the analytical base table needed for log linear model fitting
+        
+        Parameters
+        ------------
+        dataframe: pandas dataframe,
+            microbiome count data
+        metadataframe: pandas dataframe,
+            metadata dataframe that should at least contain the subject column and time columns
+            where subject column indicates which smaples belong to which subject 
+                and the time column indicates the time of sampling. 
+        
+        Returns
+        ------------
+        xydf: pandas dtaframe,
+            the analytical base table needed for time-decay model. 
+        """
+
+        df = dataframe.copy()
+        df = self.clrtransform(df) ##clr transform count data
+        
+        metadata = metadataframe.copy()
+        subjects = metadataframe.Subject.unique()
+        
+        xylist = []
+        
+        ## calculates sample distance within each subjects
+        for i in subjects:
+            ix = metadata[metadata.Subject == i].index
+            subdf = df.loc[ix]
+            submeta = metadata.loc[ix, "Time"]
+            
+            XY = self.scoreXY(subdf, submeta)
+            XY["subject"] = [i]*XY.shape[0]
+            
+            xylist.append(XY)
+        
+        # joins the distance table from all subjects
+        xydf = pd.concat(xylist).reset_index().drop(columns="index")
+        
+        if inverse:
+            xydf["distance"] = 1/xydf["distance"]
+        xydf["distance"] = np.log(xydf["distance"])
+        
+        # removes values of zero distance
+        xydf=xydf[~np.isinf(xydf)]
+        xydf.dropna(axis=0, how='any', inplace=True)
+
+        return xydf
+
+    def build_abt_distance(self, dataframe, metadataframe):
         """
         Builds the analytical base table needed for log linear model fitting
         
@@ -278,7 +329,7 @@ class timedecay:
 
         return xy
 
-    def group_comparison_Ttest(self, dataset, metadata, group):
+    def group_comparison_Ttest(self, dataset, metadata, group,inverse=False):
         """
         Performs T test to compute the statistical significance on the difference of time decay between two groups.
         This is done by looping through each subject within a group and computing their decay rate, and finally comparing decay rate of the two groups. 
@@ -313,8 +364,8 @@ class timedecay:
         groupAix = metadata[metadata[group]==A].index
         groupBix = metadata[metadata[group]==B].index
         
-        abtA = self.build_abt(dataset.loc[groupAix], metadata.loc[groupAix])
-        abtB = self.build_abt(dataset.loc[groupBix], metadata.loc[groupBix])
+        abtA = self.build_abt(dataset.loc[groupAix], metadata.loc[groupAix],inverse)
+        abtB = self.build_abt(dataset.loc[groupBix], metadata.loc[groupBix],inverse)
         
         decayrateA = []
         interceptA = []
