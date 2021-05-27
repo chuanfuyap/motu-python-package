@@ -68,7 +68,10 @@ class EDA():
         """
         df = dataframe.copy()
         df.replace(0, np.nan, inplace=True)
-        df.dropna(axis=1, thresh=(otu_coverage*df.shape[0]), inplace =True)
+        if isinstance(otu_coverage, float):
+            df.dropna(axis=1, thresh=(otu_coverage*df.shape[0]), inplace =True)
+        elif isinstance(otu_coverage, int):
+            df.dropna(axis=1, thresh=otu_coverage, inplace =True)
         df.fillna(0, inplace=True)
 
         return df
@@ -191,7 +194,7 @@ class EDA():
         copied = df.copy()
 
         copied.fillna(0, inplace=True)
-        X_imputed = composition.multiplicative_replacement(copied)
+        X_imputed = copied.replace(0, 0.55)
         X_clr = composition.clr(X_imputed)
         
         ##note the dataframe is transposed here, so the columns are now samples, 

@@ -274,7 +274,7 @@ class timedecay:
     
     def clrtransform(self, dataframe):
         """
-        Performs multiplicative replacement to fill in the zeroes followed by centred-log-ratio (clr) transformation.
+        Performs zero imputations to fill in the zeroes followed by centred-log-ratio (clr) transformation.
         
         Parameters
         ------------
@@ -289,9 +289,9 @@ class timedecay:
 
         """
         df = dataframe.copy()    
-        ### multiplicative replacement to make sure no zero
+        ### impute zeroes with 0.55
         df.fillna(0, inplace=True)
-        X_imputed = composition.multiplicative_replacement(df)
+        X_imputed = df.replace(0, 0.55)
         ### clr transform data
         X_clr = composition.clr(X_imputed)
 
