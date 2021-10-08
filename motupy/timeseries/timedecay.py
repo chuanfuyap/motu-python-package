@@ -222,55 +222,6 @@ class timedecay:
         xydf.dropna(axis=0, how='any', inplace=True)
 
         return xydf
-
-    def build_abt_distance(self, dataframe, metadataframe):
-        """
-        Builds the analytical base table needed for log linear model fitting
-        
-        Parameters
-        ------------
-        dataframe: pandas dataframe,
-            microbiome count data
-        metadataframe: pandas dataframe,
-            metadata dataframe that should at least contain the subject column and time columns
-            where subject column indicates which smaples belong to which subject 
-                and the time column indicates the time of sampling. 
-        
-        Returns
-        ------------
-        xydf: pandas dtaframe,
-            the analytical base table needed for time-decay model. 
-        """
-
-        df = dataframe.copy()
-        df = self.clrtransform(df) ##clr transform count data
-        
-        metadata = metadataframe.copy()
-        subjects = metadataframe.Subject.unique()
-        
-        xylist = []
-        
-        ## calculates sample distance within each subjects
-        for i in subjects:
-            ix = metadata[metadata.Subject == i].index
-            subdf = df.loc[ix]
-            submeta = metadata.loc[ix, "Time"]
-            
-            XY = self.scoreXY(subdf, submeta)
-            XY["subject"] = [i]*XY.shape[0]
-            
-            xylist.append(XY)
-        
-        # joins the distance table from all subjects
-        xydf = pd.concat(xylist).reset_index().drop(columns="index")
-        
-        xydf["distance"] = np.log(xydf["distance"])
-        
-        # removes values of zero distance
-        xydf=xydf[~np.isinf(xydf)]
-        xydf.dropna(axis=0, how='any', inplace=True)
-        
-        return xydf
     
     def clrtransform(self, dataframe):
         """
