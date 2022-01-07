@@ -6,6 +6,6 @@ setup(name="motupy",
         description='Tools to manipulate and transform microbiome/metagenomics dataset.',
         author='Chuan Fu Yap',
         author_email='yapchuanfu@gmail.com',
-        license='MIT',
+        license='GNU GPLv3',
         packages=find_namespace_packages(include=['motupy.dataprocessing', "motupy.utils", "motupy.timeseries"]),
         install_requires=['pandas', 'ete3', 'numpy', 'scipy', 'scikit-bio'])
