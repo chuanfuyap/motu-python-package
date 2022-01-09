@@ -1,4 +1,3 @@
-from motupy.dataprocessing.api import OTUdata
-#from motupy.dataprocessing.OTUdata import OTUdata
-
-__all__ = ["OTUdata"]
+from motupy.dataprocessing import *
+from motupy.timeseries import *
+from motupy.utils import *

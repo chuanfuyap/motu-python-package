@@ -6,4 +6,4 @@ from motupy.dataprocessing.OTUnest import OTUnest
 from motupy.dataprocessing.GeneData import GeneData
 from motupy.dataprocessing.GeneNest import GeneNest
 
-__all__ = ["OTUdata", "OTUnest", "GeneData","GeneNest"]
+__all__ = ["OTUdata", "OTUnest", "GeneData", "GeneNest"]
